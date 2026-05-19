@@ -11,22 +11,22 @@
     
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #05020c 100%);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.06);
+            --bg-gradient: linear-gradient(135deg, #07050f 0%, #020105 100%);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.05);
             --neon-blue: #00f2fe;
             --neon-purple: #9b51e0;
             --neon-pink: #ff007f;
             --neon-green: #39ff14;
             --neon-orange: #ff9f00;
             --text-primary: #f8f9fa;
-            --text-secondary: rgba(248, 249, 250, 0.6);
+            --text-secondary: rgba(248, 249, 250, 0.5);
             
             --orb-color: var(--neon-blue);
             --orb-glow: rgba(0, 242, 254, 0.3);
         }
 
-        /* Status-specific color configurations */
+        /* Status-specific configurations */
         body.status-initializing {
             --orb-color: #f1c40f;
             --orb-glow: rgba(241, 196, 15, 0.3);
@@ -36,8 +36,8 @@
             --orb-glow: rgba(255, 159, 0, 0.3);
         }
         body.status-idle {
-            --orb-color: rgba(255, 255, 255, 0.3);
-            --orb-glow: rgba(255, 255, 255, 0.05);
+            --orb-color: rgba(255, 255, 255, 0.15);
+            --orb-glow: rgba(255, 255, 255, 0.02);
         }
         body.status-listening {
             --orb-color: var(--neon-pink);
@@ -71,69 +71,82 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
-        /* Background grid/glow elements for rich aesthetics */
-        .ambient-glow-1 {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(155, 81, 224, 0.15) 0%, rgba(0,0,0,0) 70%);
-            top: -200px;
-            left: -100px;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        .ambient-glow-2 {
+        /* Slowly floating vibrant background blobs */
+        .blob-1 {
             position: absolute;
             width: 700px;
             height: 700px;
-            background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, rgba(0,0,0,0) 70%);
-            bottom: -300px;
-            right: -100px;
+            background: radial-gradient(circle, rgba(155, 81, 224, 0.1) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -150px;
             z-index: 0;
             pointer-events: none;
+            animation: float-blob-1 25s infinite alternate ease-in-out;
+        }
+        
+        .blob-2 {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(0,0,0,0) 70%);
+            bottom: -200px;
+            right: -150px;
+            z-index: 0;
+            pointer-events: none;
+            animation: float-blob-2 30s infinite alternate ease-in-out;
+        }
+
+        @keyframes float-blob-1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(120px, 80px) scale(1.15); }
+        }
+
+        @keyframes float-blob-2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-100px, -60px) scale(0.9); }
         }
 
         .dashboard-container {
             position: relative;
             z-index: 1;
-            width: 95vw;
-            height: 90vh;
-            max-width: 1400px;
+            width: 96vw;
+            height: 92vh;
+            max-width: 1440px;
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 24px;
-            background: rgba(10, 8, 20, 0.4);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            grid-template-columns: 400px 1fr;
+            gap: 28px;
+            background: rgba(8, 6, 16, 0.35);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
             border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7);
         }
 
-        /* Sidebar - Chat Console */
+        /* Sidebar - Chat Panel */
         .sidebar {
             display: flex;
             flex-direction: column;
             height: 100%;
             border-right: 1px solid var(--glass-border);
-            padding-right: 24px;
+            padding-right: 28px;
             overflow: hidden;
         }
 
         .sidebar-header {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .sidebar-header h2 {
             font-family: 'Outfit', sans-serif;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 600;
             letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #fff, var(--text-secondary));
+            background: linear-gradient(90deg, #ffffff, var(--text-secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -141,13 +154,13 @@
         .chat-console {
             flex: 1;
             overflow-y: auto;
-            padding-right: 8px;
-            margin-bottom: 16px;
+            padding-right: 10px;
+            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+            scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
         }
 
         .chat-console::-webkit-scrollbar {
@@ -155,32 +168,33 @@
         }
         
         .chat-console::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
         }
 
         .chat-bubble {
             max-width: 85%;
-            padding: 14px 18px;
-            border-radius: 18px;
-            line-height: 1.5;
+            padding: 14px 20px;
+            border-radius: 20px;
+            line-height: 1.6;
             font-size: 14.5px;
             position: relative;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             word-wrap: break-word;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .chat-bubble.user {
             align-self: flex-end;
-            background: linear-gradient(135deg, rgba(155, 81, 224, 0.15) 0%, rgba(155, 81, 224, 0.05) 100%);
-            border: 1px solid rgba(155, 81, 224, 0.3);
+            background: linear-gradient(135deg, rgba(155, 81, 224, 0.15) 0%, rgba(155, 81, 224, 0.04) 100%);
+            border: 1px solid rgba(155, 81, 224, 0.25);
             border-bottom-right-radius: 4px;
             color: #fff;
+            box-shadow: 0 4px 15px rgba(155, 81, 224, 0.05);
         }
 
         .chat-bubble.luna {
@@ -191,13 +205,13 @@
             color: var(--text-primary);
         }
 
-        /* Streaming dynamic typing indicator */
+        /* Streaming dynamic typing cursor indicator */
         .chat-bubble.luna.typing::after {
-            content: '|';
+            content: '▊';
             animation: blink 0.8s infinite;
             color: var(--neon-blue);
-            margin-left: 2px;
-            font-weight: bold;
+            margin-left: 4px;
+            font-size: 12px;
         }
 
         @keyframes blink {
@@ -207,13 +221,13 @@
         .connection-status {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 12px;
             color: var(--text-secondary);
-            padding: 8px 12px;
+            padding: 10px 14px;
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 12px;
+            border-radius: 14px;
             width: fit-content;
         }
 
@@ -233,17 +247,17 @@
         /* Main Workspace */
         .main-workspace {
             display: grid;
-            grid-template-rows: 1fr 180px;
-            gap: 20px;
+            grid-template-rows: 1fr 190px;
+            gap: 24px;
             height: 100%;
             overflow: hidden;
         }
 
-        /* Visualization Panel */
+        /* Visualizer Panel containing fluid Siri/Alexa visualizer */
         .visualizer-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -254,142 +268,82 @@
 
         .assistant-title {
             position: absolute;
-            top: 24px;
+            top: 32px;
             text-align: center;
             z-index: 10;
         }
 
         .assistant-title h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 800;
-            letter-spacing: 1px;
-            background: linear-gradient(90deg, #fff 30%, var(--neon-blue) 100%);
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, #ffffff 40%, var(--neon-blue) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .assistant-title p {
-            font-size: 12px;
-            letter-spacing: 2px;
+            font-size: 11px;
+            letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--text-secondary);
         }
 
-        /* Holographic Visualizer Orb */
-        .orb-wrapper {
+        /* Wavy Orb Container holding canvas and central glass core */
+        .orb-container {
             position: relative;
-            width: 280px;
-            height: 280px;
+            width: 440px;
+            height: 440px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .orb-glow-ring {
+        #visualizerCanvas {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: radial-gradient(circle, var(--orb-glow) 0%, rgba(0,0,0,0) 70%);
-            filter: blur(10px);
+            z-index: 1;
+            pointer-events: none;
             transition: all 0.5s ease;
         }
 
-        .orb-core {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.8) 100%);
-            border: 2px solid var(--orb-color);
-            box-shadow: 0 0 35px var(--orb-glow), inset 0 0 25px var(--orb-glow);
-            position: relative;
-            z-index: 2;
-            transition: all 0.5s ease;
+        .orb-center-label {
+            position: absolute;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 10;
         }
 
-        .orb-status-text {
+        .luna-name {
             font-family: 'Outfit', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: 4px;
             color: #fff;
-            text-shadow: 0 0 8px var(--orb-color);
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+
+        .luna-state {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
             text-transform: uppercase;
-            z-index: 3;
-            transition: all 0.5s ease;
+            margin-top: 6px;
+            color: var(--orb-color);
+            text-shadow: 0 0 10px var(--orb-glow);
+            transition: color 0.5s ease, text-shadow 0.5s ease;
         }
 
-        /* Visualizer animations */
-        .orb-rotating-ring {
-            position: absolute;
-            width: 220px;
-            height: 220px;
-            border: 1px dashed var(--orb-color);
-            border-radius: 50%;
-            opacity: 0.4;
-            transition: all 0.5s ease;
-        }
-
-        /* CSS animations depending on status classes */
-        body.status-listening .orb-core {
-            animation: pulse-listening 1.2s infinite ease-in-out;
-        }
-
-        body.status-processing .orb-rotating-ring {
-            animation: spin 3s linear infinite;
-            border-top-color: var(--neon-purple);
-            border-bottom-color: var(--neon-purple);
-            opacity: 0.8;
-        }
-
-        body.status-speaking .orb-core {
-            animation: pulse-speaking 0.6s infinite alternate ease-in-out;
-        }
-
-        body.status-calibrating .orb-core {
-            animation: rotate-gradient 2.0s infinite linear;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        @keyframes pulse-listening {
-            0% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.3); }
-            50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(255, 0, 127, 0.7), inset 0 0 25px rgba(255, 0, 127, 0.5); }
-            100% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.3); }
-        }
-
-        @keyframes pulse-speaking {
-            0% { transform: scale(0.98); box-shadow: 0 0 20px rgba(0, 242, 254, 0.3), inset 0 0 10px rgba(0, 242, 254, 0.2); }
-            100% { transform: scale(1.12); box-shadow: 0 0 50px rgba(0, 242, 254, 0.8), inset 0 0 30px rgba(0, 242, 254, 0.5); }
-        }
-
-        /* SVG waves visualizer container */
-        .waves-container {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 80px;
-            opacity: 0.25;
-            transition: opacity 0.5s ease;
-        }
-
-        body.status-speaking .waves-container {
-            opacity: 0.75;
-        }
-
-        /* Timeline and Logs Panel */
+        /* Logs / Timeline Panel */
         .logs-panel {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 16px 20px;
+            border-radius: 24px;
+            padding: 20px 24px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -399,12 +353,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .logs-header h3 {
             font-family: 'Outfit', sans-serif;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
             letter-spacing: 0.5px;
             color: var(--text-secondary);
@@ -415,7 +369,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
             scrollbar-width: thin;
         }
 
@@ -427,18 +381,18 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.015);
             border: 1px solid var(--glass-border);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12.5px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 13px;
             animation: fadeIn 0.3s ease;
         }
 
         .action-details {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .action-name {
@@ -450,35 +404,36 @@
             font-family: monospace;
             color: var(--neon-blue);
             background: rgba(0, 242, 254, 0.08);
-            padding: 2px 6px;
-            border-radius: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
         }
 
         .action-status {
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            padding: 2px 8px;
-            border-radius: 6px;
+            padding: 3px 10px;
+            border-radius: 8px;
         }
 
         .action-status.running {
-            background: rgba(255, 159, 0, 0.15);
+            background: rgba(255, 159, 0, 0.12);
             color: var(--neon-orange);
-            border: 1px solid rgba(255, 159, 0, 0.3);
+            border: 1px solid rgba(255, 159, 0, 0.25);
             animation: pulse-border 1.0s infinite alternate;
         }
 
         .action-status.success {
-            background: rgba(57, 255, 20, 0.1);
+            background: rgba(57, 255, 20, 0.08);
             color: var(--neon-green);
-            border: 1px solid rgba(57, 255, 20, 0.3);
+            border: 1px solid rgba(57, 255, 20, 0.25);
         }
 
         .action-status.failed {
-            background: rgba(255, 0, 127, 0.1);
+            background: rgba(255, 0, 127, 0.08);
             color: var(--neon-pink);
-            border: 1px solid rgba(255, 0, 127, 0.3);
+            border: 1px solid rgba(255, 0, 127, 0.25);
         }
 
         @keyframes pulse-border {
@@ -489,11 +444,11 @@
 </head>
 <body class="status-initializing">
     <!-- Ambient aesthetics -->
-    <div class="ambient-glow-1"></div>
-    <div class="ambient-glow-2"></div>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
 
     <div class="dashboard-container">
-        <!-- Chat Console & Connections -->
+        <!-- Chat Side Console -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>Conversation History</h2>
@@ -515,25 +470,20 @@
             <div class="visualizer-panel">
                 <div class="assistant-title">
                     <h1>LUNA</h1>
-                    <p>Local Intelligent Assistant</p>
+                    <p>Voice Intelligence Cockpit</p>
                 </div>
 
-                <div class="orb-wrapper">
-                    <div class="orb-glow-ring"></div>
-                    <div class="orb-rotating-ring"></div>
-                    <div class="orb-core">
-                        <span class="orb-status-text" id="statusText">Initializing</span>
+                <!-- Circular voice visualizer container -->
+                <div class="orb-container">
+                    <canvas id="visualizerCanvas" width="440" height="440"></canvas>
+                    <div class="orb-center-label">
+                        <span class="luna-name">LUNA</span>
+                        <span class="luna-state" id="statusText">Initializing</span>
                     </div>
                 </div>
-
-                <!-- Wave animations -->
-                <svg class="waves-container" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 240" preserveAspectRatio="none">
-                    <path fill="rgba(0, 242, 254, 0.1)" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,122.7C1120,96,1280,64,1360,48L1440,32L1440,240L1360,240C1280,240,1120,240,960,240C800,240,640,240,480,240C320,240,160,240,80,240L0,240Z"></path>
-                    <path fill="rgba(155, 81, 224, 0.08)" d="M0,192L80,176C160,160,320,128,480,112C640,96,800,96,960,112C1120,128,1280,160,1360,176L1440,192L1440,240L1360,240C1280,240,1120,240,960,240C800,240,640,240,480,240C320,240,160,240,80,240L0,240Z"></path>
-                </svg>
             </div>
 
-            <!-- Action / Tool Dispatch Console -->
+            <!-- Action Timeline Console -->
             <div class="logs-panel">
                 <div class="logs-header">
                     <h3>Actions Execution Log</h3>
@@ -555,10 +505,124 @@
         const statusText = document.getElementById('statusText');
         const statusDot = document.getElementById('statusDot');
         const connectionText = document.getElementById('connectionText');
+        const canvas = document.getElementById('visualizerCanvas');
+        const ctx = canvas.getContext('2d');
 
         let ws;
         let lastLunaBubble = null;
+        let phase = 0;
 
+        // Visualizer config representing status values
+        let visualizerConfig = {
+            radius: 130,
+            amplitude: 4,
+            frequency: 6,
+            speed: 0.04,
+            colors: ['#00f2fe', '#9b51e0']
+        };
+
+        function updateVisualizer(status) {
+            switch (status) {
+                case 'listening':
+                    visualizerConfig.radius = 135;
+                    visualizerConfig.amplitude = 14;
+                    visualizerConfig.frequency = 7;
+                    visualizerConfig.speed = 0.12;
+                    visualizerConfig.colors = ['#ff007f', '#ff9f00', '#00f2fe'];
+                    break;
+                case 'processing':
+                    visualizerConfig.radius = 130;
+                    visualizerConfig.amplitude = 6;
+                    visualizerConfig.frequency = 12;
+                    visualizerConfig.speed = 0.22;
+                    visualizerConfig.colors = ['#9b51e0', '#ff007f'];
+                    break;
+                case 'speaking':
+                    visualizerConfig.radius = 130;
+                    visualizerConfig.amplitude = 18; // will fluctuate dynamically
+                    visualizerConfig.frequency = 6;
+                    visualizerConfig.speed = 0.08;
+                    visualizerConfig.colors = ['#00f2fe', '#39ff14', '#9b51e0'];
+                    break;
+                case 'calibrating':
+                    visualizerConfig.radius = 125;
+                    visualizerConfig.amplitude = 8;
+                    visualizerConfig.frequency = 10;
+                    visualizerConfig.speed = 0.16;
+                    visualizerConfig.colors = ['#ff9f00', '#f1c40f'];
+                    break;
+                case 'idle':
+                default:
+                    visualizerConfig.radius = 120;
+                    visualizerConfig.amplitude = 2;
+                    visualizerConfig.frequency = 4;
+                    visualizerConfig.speed = 0.02;
+                    visualizerConfig.colors = ['rgba(255, 255, 255, 0.2)', 'rgba(0, 242, 254, 0.15)'];
+                    break;
+            }
+        }
+
+        // Draw voice visualizer loop (fluid circular wave)
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            phase += visualizerConfig.speed;
+            
+            let currentAmp = visualizerConfig.amplitude;
+            const isSpeaking = document.body.className.includes('status-speaking');
+            
+            if (isSpeaking) {
+                // Fluctuate amplitude dynamically based on sine wave to simulate vocal modulation
+                currentAmp = visualizerConfig.amplitude * (0.3 + 0.7 * Math.sin(phase * 1.5));
+            }
+            
+            // Draw overlapping wavy circular ripples
+            for (let i = 0; i < visualizerConfig.colors.length; i++) {
+                ctx.beginPath();
+                const color = visualizerConfig.colors[i];
+                const localPhase = phase + (i * Math.PI / 2.5);
+                
+                for (let angle = 0; angle <= Math.PI * 2; angle += 0.02) {
+                    const ripple = currentAmp * Math.sin(visualizerConfig.frequency * angle + localPhase);
+                    const r = visualizerConfig.radius + ripple;
+                    const x = centerX + r * Math.cos(angle);
+                    const y = centerY + r * Math.sin(angle);
+                    
+                    if (angle === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                
+                ctx.closePath();
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 4 - (i * 0.8);
+                ctx.shadowBlur = 18;
+                ctx.shadowColor = color;
+                ctx.stroke();
+            }
+            
+            // Draw a center glassmorphic core inside the canvas
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, visualizerConfig.radius - 18, 0, Math.PI * 2);
+            ctx.shadowBlur = 0; // Clear blur for clean core shape
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, visualizerConfig.radius - 18);
+            gradient.addColorStop(0, 'rgba(15, 12, 28, 0.65)');
+            gradient.addColorStop(1, 'rgba(7, 5, 12, 0.95)');
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            
+            requestAnimationFrame(draw);
+        }
+
+        // Start WebSocket setup
         function connect() {
             const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const wsUri = `${proto}//${window.location.host}/ws`;
@@ -578,6 +642,7 @@
                 connectionText.textContent = 'Disconnected. Reconnecting...';
                 document.body.className = 'status-idle';
                 statusText.textContent = 'Offline';
+                updateVisualizer('idle');
                 setTimeout(connect, 2000);
             };
 
@@ -588,14 +653,11 @@
         }
 
         function handleMessage(msg) {
-            console.log('Received socket packet:', msg);
-            
             switch (msg.type) {
                 case 'status':
                     updateStatus(msg.data);
                     break;
                 case 'chat_start':
-                    // Create an empty typing bubble for streaming
                     lastLunaBubble = document.createElement('div');
                     lastLunaBubble.className = 'chat-bubble luna typing';
                     chatConsole.appendChild(lastLunaBubble);
@@ -608,14 +670,11 @@
                     }
                     break;
                 case 'chat':
-                    // Finished or fully formed chat message
-                    // Remove typing cursor if we were streaming
                     if (msg.sender === 'luna' && lastLunaBubble) {
                         lastLunaBubble.classList.remove('typing');
                         lastLunaBubble.textContent = msg.text;
                         lastLunaBubble = null;
                     } else {
-                        // User message or non-streamed welcoming response
                         const bubble = document.createElement('div');
                         bubble.className = `chat-bubble ${msg.sender}`;
                         bubble.textContent = msg.text;
@@ -642,14 +701,13 @@
         function updateStatus(status) {
             document.body.className = `status-${status}`;
             statusText.textContent = status;
+            updateVisualizer(status);
         }
 
         function updateActionRow(action) {
-            // Check if action row already exists
             const rowId = `action-${action.name}-${action.arg}`.replace(/[^a-zA-Z0-9-]/g, '');
             let row = document.getElementById(rowId);
             
-            // Remove the default "no actions" placeholder
             if (actionList.children.length === 1 && actionList.children[0].style.justifyContent === 'center') {
                 actionList.innerHTML = '';
             }
@@ -671,8 +729,6 @@
                 const statusBadge = row.querySelector('.action-status');
                 statusBadge.className = `action-status ${action.status}`;
                 statusBadge.textContent = action.status;
-                
-                // Add result title tooltip if present
                 if (action.result) {
                     row.title = action.result;
                 }
@@ -683,7 +739,8 @@
             chatConsole.scrollTop = chatConsole.scrollHeight;
         }
 
-        // Initialize connection
+        // Start drawing visualizer and connect
+        draw();
         connect();
     </script>
 </body>
