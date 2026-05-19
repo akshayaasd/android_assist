@@ -82,6 +82,16 @@ def set_status(status: str):
 def run_action_background(action_name: str, action_arg: str):
     """Runs a tool action asynchronously and sends results back to the UI."""
     send_update_to_web({"type": "action", "name": action_name, "arg": action_arg, "status": "running"})
+    
+    # Check if we are closing the assistant itself
+    if action_name == "close_app" and action_arg.lower() in ["luna", "amy", "assistant", "voice assistant", "self", "web_server", "web server"]:
+        import os
+        logger.info("Self-shutdown action triggered via close_app action tag.")
+        send_update_to_web({"type": "action", "name": action_name, "arg": action_arg, "status": "success", "result": "Shutting down local voice assistant server..."})
+        # Wait for the farewell speech stream to finish playing
+        time.sleep(5.0)
+        os._exit(0)
+        
     try:
         res = execute_action(action_name, action_arg)
         send_update_to_web({"type": "action", "name": action_name, "arg": action_arg, "status": "success", "result": res})
@@ -130,14 +140,16 @@ def run_assistant_loop():
             send_update_to_web({"type": "chat", "sender": "user", "text": user_text})
             
             # Exit conditions
-            if any(exit_cmd in user_text.lower() for exit_cmd in ["goodbye", "exit assistant", "quit assistant"]):
+            if any(exit_cmd in user_text.lower() for exit_cmd in ["goodbye", "exit assistant", "quit assistant", "close you", "quit you", "close assistant", "quit assistant", "stop assistant", "shut down", "exit luna", "close luna", "quit luna"]):
                 set_status("speaking")
                 farewell = "Goodbye! Have a great day!"
                 send_update_to_web({"type": "chat", "sender": "luna", "text": farewell})
                 for audio_chunk, sample_rate in tts.synthesize_stream(farewell):
                     audio_manager.play(audio_chunk, sample_rate)
                 audio_manager.wait_for_playback()
-                break
+                import os
+                logger.info("Exiting voice assistant via voice exit command...")
+                os._exit(0)
                 
             conversation_history.append({"role": "user", "content": user_text})
             

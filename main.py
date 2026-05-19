@@ -89,13 +89,14 @@ def main():
             print(f"\nYou: {user_text}")
             
             # Exit conditions
-            if any(exit_cmd in user_text.lower() for exit_cmd in ["goodbye", "exit assistant", "quit assistant"]):
+            if any(exit_cmd in user_text.lower() for exit_cmd in ["goodbye", "exit assistant", "quit assistant", "close you", "quit you", "close assistant", "quit assistant", "stop assistant", "shut down", "exit luna", "close luna", "quit luna"]):
                 farewell = "Goodbye! Have a great day!"
                 print(f"Assistant: {farewell}")
                 for audio_chunk, sample_rate in tts.synthesize_stream(farewell):
                     audio_manager.play(audio_chunk, sample_rate)
                 audio_manager.wait_for_playback()
-                break
+                import os
+                os._exit(0)
                 
             # Append user utterance to conversation history
             conversation_history.append({"role": "user", "content": user_text})
