@@ -1,0 +1,8 @@
+sounddevice
+numpy
+scipy
+faster-whisper
+piper-tts
+groq
+python-dotenv
+requests
