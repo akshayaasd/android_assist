@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luna Voice Assistant</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #05020c 100%);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.06);
+            --neon-blue: #00f2fe;
+            --neon-purple: #9b51e0;
+            --neon-pink: #ff007f;
+            --neon-green: #39ff14;
+            --neon-orange: #ff9f00;
+            --text-primary: #f8f9fa;
+            --text-secondary: rgba(248, 249, 250, 0.6);
+            
+            --orb-color: var(--neon-blue);
+            --orb-glow: rgba(0, 242, 254, 0.3);
+        }
+
+        /* Status-specific color configurations */
+        body.status-initializing {
+            --orb-color: #f1c40f;
+            --orb-glow: rgba(241, 196, 15, 0.3);
+        }
+        body.status-calibrating {
+            --orb-color: var(--neon-orange);
+            --orb-glow: rgba(255, 159, 0, 0.3);
+        }
+        body.status-idle {
+            --orb-color: rgba(255, 255, 255, 0.3);
+            --orb-glow: rgba(255, 255, 255, 0.05);
+        }
+        body.status-listening {
+            --orb-color: var(--neon-pink);
+            --orb-glow: rgba(255, 0, 127, 0.4);
+        }
+        body.status-processing {
+            --orb-color: var(--neon-purple);
+            --orb-glow: rgba(155, 81, 224, 0.4);
+        }
+        body.status-speaking {
+            --orb-color: var(--neon-blue);
+            --orb-glow: rgba(0, 242, 254, 0.4);
+        }
+        body.status-error {
+            --orb-color: var(--neon-pink);
+            --orb-glow: rgba(255, 0, 127, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Background grid/glow elements for rich aesthetics */
+        .ambient-glow-1 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(155, 81, 224, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: -200px;
+            left: -100px;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .ambient-glow-2 {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, rgba(0,0,0,0) 70%);
+            bottom: -300px;
+            right: -100px;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .dashboard-container {
+            position: relative;
+            z-index: 1;
+            width: 95vw;
+            height: 90vh;
+            max-width: 1400px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+            background: rgba(10, 8, 20, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Sidebar - Chat Console */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border-right: 1px solid var(--glass-border);
+            padding-right: 24px;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: linear-gradient(90deg, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chat-console {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+
+        .chat-console::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .chat-console::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        .chat-bubble {
+            max-width: 85%;
+            padding: 14px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+            font-size: 14.5px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+            word-wrap: break-word;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, rgba(155, 81, 224, 0.15) 0%, rgba(155, 81, 224, 0.05) 100%);
+            border: 1px solid rgba(155, 81, 224, 0.3);
+            border-bottom-right-radius: 4px;
+            color: #fff;
+        }
+
+        .chat-bubble.luna {
+            align-self: flex-start;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-bottom-left-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        /* Streaming dynamic typing indicator */
+        .chat-bubble.luna.typing::after {
+            content: '|';
+            animation: blink 0.8s infinite;
+            color: var(--neon-blue);
+            margin-left: 2px;
+            font-weight: bold;
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 8px 12px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neon-pink);
+            box-shadow: 0 0 8px var(--neon-pink);
+        }
+
+        .status-dot.connected {
+            background: var(--neon-green);
+            box-shadow: 0 0 8px var(--neon-green);
+        }
+
+        /* Main Workspace */
+        .main-workspace {
+            display: grid;
+            grid-template-rows: 1fr 180px;
+            gap: 20px;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Visualization Panel */
+        .visualizer-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .assistant-title {
+            position: absolute;
+            top: 24px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .assistant-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #fff 30%, var(--neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .assistant-title p {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        /* Holographic Visualizer Orb */
+        .orb-wrapper {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .orb-glow-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--orb-glow) 0%, rgba(0,0,0,0) 70%);
+            filter: blur(10px);
+            transition: all 0.5s ease;
+        }
+
+        .orb-core {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.8) 100%);
+            border: 2px solid var(--orb-color);
+            box-shadow: 0 0 35px var(--orb-glow), inset 0 0 25px var(--orb-glow);
+            position: relative;
+            z-index: 2;
+            transition: all 0.5s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .orb-status-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 8px var(--orb-color);
+            text-transform: uppercase;
+            z-index: 3;
+            transition: all 0.5s ease;
+        }
+
+        /* Visualizer animations */
+        .orb-rotating-ring {
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 1px dashed var(--orb-color);
+            border-radius: 50%;
+            opacity: 0.4;
+            transition: all 0.5s ease;
+        }
+
+        /* CSS animations depending on status classes */
+        body.status-listening .orb-core {
+            animation: pulse-listening 1.2s infinite ease-in-out;
+        }
+
+        body.status-processing .orb-rotating-ring {
+            animation: spin 3s linear infinite;
+            border-top-color: var(--neon-purple);
+            border-bottom-color: var(--neon-purple);
+            opacity: 0.8;
+        }
+
+        body.status-speaking .orb-core {
+            animation: pulse-speaking 0.6s infinite alternate ease-in-out;
+        }
+
+        body.status-calibrating .orb-core {
+            animation: rotate-gradient 2.0s infinite linear;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-listening {
+            0% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.3); }
+            50% { transform: scale(1.08); box-shadow: 0 0 45px rgba(255, 0, 127, 0.7), inset 0 0 25px rgba(255, 0, 127, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 0 25px rgba(255, 0, 127, 0.4), inset 0 0 15px rgba(255, 0, 127, 0.3); }
+        }
+
+        @keyframes pulse-speaking {
+            0% { transform: scale(0.98); box-shadow: 0 0 20px rgba(0, 242, 254, 0.3), inset 0 0 10px rgba(0, 242, 254, 0.2); }
+            100% { transform: scale(1.12); box-shadow: 0 0 50px rgba(0, 242, 254, 0.8), inset 0 0 30px rgba(0, 242, 254, 0.5); }
+        }
+
+        /* SVG waves visualizer container */
+        .waves-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            opacity: 0.25;
+            transition: opacity 0.5s ease;
+        }
+
+        body.status-speaking .waves-container {
+            opacity: 0.75;
+        }
+
+        /* Timeline and Logs Panel */
+        .logs-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 16px 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .logs-header h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+        }
+
+        .action-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            scrollbar-width: thin;
+        }
+
+        .action-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .action-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12.5px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .action-details {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .action-arg {
+            font-family: monospace;
+            color: var(--neon-blue);
+            background: rgba(0, 242, 254, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .action-status {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 6px;
+        }
+
+        .action-status.running {
+            background: rgba(255, 159, 0, 0.15);
+            color: var(--neon-orange);
+            border: 1px solid rgba(255, 159, 0, 0.3);
+            animation: pulse-border 1.0s infinite alternate;
+        }
+
+        .action-status.success {
+            background: rgba(57, 255, 20, 0.1);
+            color: var(--neon-green);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+        }
+
+        .action-status.failed {
+            background: rgba(255, 0, 127, 0.1);
+            color: var(--neon-pink);
+            border: 1px solid rgba(255, 0, 127, 0.3);
+        }
+
+        @keyframes pulse-border {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="status-initializing">
+    <!-- Ambient aesthetics -->
+    <div class="ambient-glow-1"></div>
+    <div class="ambient-glow-2"></div>
+
+    <div class="dashboard-container">
+        <!-- Chat Console & Connections -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Conversation History</h2>
+            </div>
+            
+            <div class="chat-console" id="chatConsole">
+                <!-- Loaded dynamically -->
+            </div>
+
+            <div class="connection-status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="connectionText">Connecting to backend...</span>
+            </div>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="main-workspace">
+            <!-- Center Visualizer -->
+            <div class="visualizer-panel">
+                <div class="assistant-title">
+                    <h1>LUNA</h1>
+                    <p>Local Intelligent Assistant</p>
+                </div>
+
+                <div class="orb-wrapper">
+                    <div class="orb-glow-ring"></div>
+                    <div class="orb-rotating-ring"></div>
+                    <div class="orb-core">
+                        <span class="orb-status-text" id="statusText">Initializing</span>
+                    </div>
+                </div>
+
+                <!-- Wave animations -->
+                <svg class="waves-container" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 240" preserveAspectRatio="none">
+                    <path fill="rgba(0, 242, 254, 0.1)" d="M0,96L80,112C160,128,320,160,480,165.3C640,171,800,149,960,122.7C1120,96,1280,64,1360,48L1440,32L1440,240L1360,240C1280,240,1120,240,960,240C800,240,640,240,480,240C320,240,160,240,80,240L0,240Z"></path>
+                    <path fill="rgba(155, 81, 224, 0.08)" d="M0,192L80,176C160,160,320,128,480,112C640,96,800,96,960,112C1120,128,1280,160,1360,176L1440,192L1440,240L1360,240C1280,240,1120,240,960,240C800,240,640,240,480,240C320,240,160,240,80,240L0,240Z"></path>
+                </svg>
+            </div>
+
+            <!-- Action / Tool Dispatch Console -->
+            <div class="logs-panel">
+                <div class="logs-header">
+                    <h3>Actions Execution Log</h3>
+                </div>
+                <div class="action-list" id="actionList">
+                    <!-- Logs populated dynamically -->
+                    <div class="action-row" style="background: none; border: none; justify-content: center; color: var(--text-secondary);">
+                        No actions executed in this session yet.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Script -->
+    <script>
+        const chatConsole = document.getElementById('chatConsole');
+        const actionList = document.getElementById('actionList');
+        const statusText = document.getElementById('statusText');
+        const statusDot = document.getElementById('statusDot');
+        const connectionText = document.getElementById('connectionText');
+
+        let ws;
+        let lastLunaBubble = null;
+
+        function connect() {
+            const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUri = `${proto}//${window.location.host}/ws`;
+            
+            console.log(`Connecting to WebSocket: ${wsUri}`);
+            ws = new WebSocket(wsUri);
+
+            ws.onopen = () => {
+                console.log('Connected to backend');
+                statusDot.classList.add('connected');
+                connectionText.textContent = 'Connected to Luna Backend';
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from backend. Retrying in 2s...');
+                statusDot.classList.remove('connected');
+                connectionText.textContent = 'Disconnected. Reconnecting...';
+                document.body.className = 'status-idle';
+                statusText.textContent = 'Offline';
+                setTimeout(connect, 2000);
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleMessage(message);
+            };
+        }
+
+        function handleMessage(msg) {
+            console.log('Received socket packet:', msg);
+            
+            switch (msg.type) {
+                case 'status':
+                    updateStatus(msg.data);
+                    break;
+                case 'chat_start':
+                    // Create an empty typing bubble for streaming
+                    lastLunaBubble = document.createElement('div');
+                    lastLunaBubble.className = 'chat-bubble luna typing';
+                    chatConsole.appendChild(lastLunaBubble);
+                    scrollToBottom();
+                    break;
+                case 'token':
+                    if (lastLunaBubble) {
+                        lastLunaBubble.textContent += msg.text;
+                        scrollToBottom();
+                    }
+                    break;
+                case 'chat':
+                    // Finished or fully formed chat message
+                    // Remove typing cursor if we were streaming
+                    if (msg.sender === 'luna' && lastLunaBubble) {
+                        lastLunaBubble.classList.remove('typing');
+                        lastLunaBubble.textContent = msg.text;
+                        lastLunaBubble = null;
+                    } else {
+                        // User message or non-streamed welcoming response
+                        const bubble = document.createElement('div');
+                        bubble.className = `chat-bubble ${msg.sender}`;
+                        bubble.textContent = msg.text;
+                        chatConsole.appendChild(bubble);
+                    }
+                    scrollToBottom();
+                    break;
+                case 'history':
+                    chatConsole.innerHTML = '';
+                    msg.data.forEach(item => {
+                        const bubble = document.createElement('div');
+                        bubble.className = `chat-bubble ${item.sender}`;
+                        bubble.textContent = item.text;
+                        chatConsole.appendChild(bubble);
+                    });
+                    scrollToBottom();
+                    break;
+                case 'action':
+                    updateActionRow(msg);
+                    break;
+            }
+        }
+
+        function updateStatus(status) {
+            document.body.className = `status-${status}`;
+            statusText.textContent = status;
+        }
+
+        function updateActionRow(action) {
+            // Check if action row already exists
+            const rowId = `action-${action.name}-${action.arg}`.replace(/[^a-zA-Z0-9-]/g, '');
+            let row = document.getElementById(rowId);
+            
+            // Remove the default "no actions" placeholder
+            if (actionList.children.length === 1 && actionList.children[0].style.justifyContent === 'center') {
+                actionList.innerHTML = '';
+            }
+
+            if (!row) {
+                row = document.createElement('div');
+                row.id = rowId;
+                row.className = 'action-row';
+                row.innerHTML = `
+                    <div class="action-details">
+                        <span>[ACTION]</span>
+                        <span class="action-name">${action.name}</span>
+                        <span class="action-arg">${action.arg}</span>
+                    </div>
+                    <span class="action-status ${action.status}">${action.status}</span>
+                `;
+                actionList.insertBefore(row, actionList.firstChild);
+            } else {
+                const statusBadge = row.querySelector('.action-status');
+                statusBadge.className = `action-status ${action.status}`;
+                statusBadge.textContent = action.status;
+                
+                // Add result title tooltip if present
+                if (action.result) {
+                    row.title = action.result;
+                }
+            }
+        }
+
+        function scrollToBottom() {
+            chatConsole.scrollTop = chatConsole.scrollHeight;
+        }
+
+        // Initialize connection
+        connect();
+    </script>
+</body>
+</html>
